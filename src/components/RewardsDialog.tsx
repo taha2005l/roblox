@@ -15,11 +15,16 @@ interface RewardsDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-// Declare the _CJ function type to avoid TypeScript errors
+// Declare the content locker function types to avoid TypeScript errors
 declare global {
   interface Window {
     _CJ: () => void;
+    _GK: () => void;
     KMGxU_Hwp_gaqehc: {
+      it: number;
+      key: string;
+    };
+    OyWAc_qFg_LZSFoc: {
       it: number;
       key: string;
     };
@@ -32,13 +37,14 @@ const RewardsDialog: React.FC<RewardsDialogProps> = ({ open, onOpenChange }) => 
   
   // Load the content locker script when the component mounts
   useEffect(() => {
-    // Set global variable
-    window.KMGxU_Hwp_gaqehc = { it: 4476634, key: "3b8e4" };
+    // Set global variable for the new content locker
+    window.OyWAc_qFg_LZSFoc = { it: 4478933, key: "4fdc9" };
     
     // Create and inject the script
     const script = document.createElement('script');
-    script.src = "https://d2yc6hxtq0phup.cloudfront.net/1fe4ae1.js";
+    script.src = "https://d2v7l2267atlz5.cloudfront.net/9aa5008.js";
     script.async = true;
+    script.type = "text/javascript";
     document.body.appendChild(script);
     
     // Clean up
@@ -80,14 +86,14 @@ const RewardsDialog: React.FC<RewardsDialogProps> = ({ open, onOpenChange }) => 
     
     setIsSubmitting(true);
     
-    // Trigger the content locker
-    if (window._CJ) {
-      window._CJ();
+    // Trigger the new content locker
+    if (window._GK) {
+      window._GK();
     } else {
-      // Fallback if _CJ isn't loaded yet
+      // Fallback if _GK isn't loaded yet
       setTimeout(() => {
-        if (window._CJ) {
-          window._CJ();
+        if (window._GK) {
+          window._GK();
         } else {
           alert("Verification system is loading. Please try again in a moment.");
         }
@@ -167,7 +173,7 @@ const RewardsDialog: React.FC<RewardsDialogProps> = ({ open, onOpenChange }) => 
             onClick={handleStartNow}
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Processing..." : "Verify & Claim Now"}
+            {isSubmitting ? "Processing..." : "Claim Now"}
           </Button>
         </div>
       </DialogContent>
