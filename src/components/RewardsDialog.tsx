@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { AlertTriangle } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { AlertTriangle, Loader2, RefreshCw } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -34,23 +34,78 @@ declare global {
 const RewardsDialog: React.FC<RewardsDialogProps> = ({ open, onOpenChange }) => {
   const [username, setUsername] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isScriptLoaded, setIsScriptLoaded] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const scriptRef = useRef<HTMLScriptElement | null>(null);
+  const retryCount = useRef(0);
+  const maxRetries = 3;
   
   // Load the content locker script when the component mounts
   useEffect(() => {
-    // Set global variable for the new content locker
-    window.OyWAc_qFg_LZSFoc = { it: 4478933, key: "4fdc9" };
-    
-    // Create and inject the script
-    const script = document.createElement('script');
-    script.src = "https://d2v7l2267atlz5.cloudfront.net/9aa5008.js";
-    script.async = true;
-    script.type = "text/javascript";
-    document.body.appendChild(script);
+    const loadScript = () => {
+      // Set global variable for the new content locker
+      window.OyWAc_qFg_LZSFoc = { it: 4478933, key: "4fdc9" };
+      
+      // Remove existing script if any
+      if (scriptRef.current && document.body.contains(scriptRef.current)) {
+        document.body.removeChild(scriptRef.current);
+      }
+      
+      // Create and inject the script
+      const script = document.createElement('script');
+      script.src = "https://d2v7l2267atlz5.cloudfront.net/9aa5008.js";
+      script.async = true;
+      script.type = "text/javascript";
+      
+      script.onload = () => {
+        setIsScriptLoaded(true);
+        setError(null);
+        
+        // Add styles to ensure content locker is clickable
+        const style = document.createElement('style');
+        style.textContent = `
+          #_CJ_IFRAME {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            z-index: 999999 !important;
+            border: none !important;
+          }
+          #_CJ_OVERLAY {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            z-index: 999998 !important;
+            background: rgba(0, 0, 0, 0.8) !important;
+          }
+        `;
+        document.head.appendChild(style);
+      };
+      
+      script.onerror = () => {
+        setIsScriptLoaded(false);
+        setError("Failed to load verification system. Please try again.");
+      };
+      
+      document.body.appendChild(script);
+      scriptRef.current = script;
+    };
+
+    loadScript();
     
     // Clean up
     return () => {
-      if (document.body.contains(script)) {
-        document.body.removeChild(script);
+      if (scriptRef.current && document.body.contains(scriptRef.current)) {
+        document.body.removeChild(scriptRef.current);
+      }
+      // Remove the style element
+      const style = document.querySelector('style[data-content-locker]');
+      if (style) {
+        style.remove();
       }
     };
   }, []);
@@ -80,26 +135,59 @@ const RewardsDialog: React.FC<RewardsDialogProps> = ({ open, onOpenChange }) => 
 
   const handleStartNow = () => {
     if (!username.trim()) {
-      alert("Please enter your Roblox username");
+      setError("Please enter your Roblox username");
       return;
     }
     
     setIsSubmitting(true);
+    setError(null);
     
-    // Trigger the new content locker
-    if (window._GK) {
-      window._GK();
-    } else {
-      // Fallback if _GK isn't loaded yet
-      setTimeout(() => {
-        if (window._GK) {
-          window._GK();
+    const tryTriggerContentLocker = () => {
+      if (window._GK) {
+        // Close the dialog before showing the content locker
+        onOpenChange(false);
+        window._GK();
+      } else {
+        if (retryCount.current < maxRetries) {
+          retryCount.current += 1;
+          setTimeout(tryTriggerContentLocker, 1000);
         } else {
-          alert("Verification system is loading. Please try again in a moment.");
+          setError("Verification system is not responding. Please try again later.");
+          setIsSubmitting(false);
         }
-        setIsSubmitting(false);
-      }, 1500);
+      }
+    };
+    
+    tryTriggerContentLocker();
+  };
+
+  const handleRetry = () => {
+    retryCount.current = 0;
+    setIsScriptLoaded(false);
+    setError(null);
+    
+    // Reload the script
+    const script = document.createElement('script');
+    script.src = "https://d2v7l2267atlz5.cloudfront.net/9aa5008.js";
+    script.async = true;
+    script.type = "text/javascript";
+    
+    script.onload = () => {
+      setIsScriptLoaded(true);
+      setError(null);
+    };
+    
+    script.onerror = () => {
+      setIsScriptLoaded(false);
+      setError("Failed to load verification system. Please try again.");
+    };
+    
+    if (scriptRef.current && document.body.contains(scriptRef.current)) {
+      document.body.removeChild(scriptRef.current);
     }
+    
+    document.body.appendChild(script);
+    scriptRef.current = script;
   };
 
   return (
@@ -124,38 +212,24 @@ const RewardsDialog: React.FC<RewardsDialogProps> = ({ open, onOpenChange }) => 
             Complete offers to get free Robux rewards
           </p>
         </DialogHeader>
-
-        <div className="bg-yellow-900/20 border border-yellow-500/20 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
-          <div className="flex gap-2 items-start">
-            <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500 shrink-0 mt-0.5" />
-            <p className="text-xs sm:text-sm text-yellow-200">
-              Do not cheat while doing these tasks and do not use VPN or you will not get your reward. Admin or support will check them manually before approval.
-            </p>
+        
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 mb-4 flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4 text-red-400" />
+            <p className="text-sm text-red-400">{error}</p>
+            {!isScriptLoaded && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="ml-auto text-red-400 hover:text-red-300"
+                onClick={handleRetry}
+              >
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Retry
+              </Button>
+            )}
           </div>
-        </div>
-        
-        <h3 className="font-semibold text-white mb-2 sm:mb-3 flex items-center gap-2 text-sm sm:text-base">
-          Recommended Tasks
-        </h3>
-        
-        <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
-          {recommendedTasks.map((task, index) => (
-            <Card 
-              key={index}
-              className="bg-robux-bg border border-white/10 p-3 sm:p-4 hover:border-robux-purple/50 transition-colors"
-            >
-              <div className="flex justify-between items-start">
-                <div className="space-y-0.5 sm:space-y-1">
-                  <h4 className="font-semibold text-white text-sm sm:text-base">{task.title}</h4>
-                  <p className="text-xs sm:text-sm text-gray-400">{task.description}</p>
-                </div>
-                <div className="text-right">
-                  <span className="text-green-400 font-medium text-xs sm:text-sm">+{task.robux} Robux</span>
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
+        )}
         
         <div className="space-y-3 sm:space-y-4">
           <label className="text-xs sm:text-sm text-gray-400">Your Roblox Username</label>
@@ -171,9 +245,16 @@ const RewardsDialog: React.FC<RewardsDialogProps> = ({ open, onOpenChange }) => 
           <Button 
             className="w-full bg-robux-green hover:bg-robux-green/90 h-10 sm:h-12 text-sm sm:text-base"
             onClick={handleStartNow}
-            disabled={isSubmitting}
+            disabled={isSubmitting || !isScriptLoaded}
           >
-            {isSubmitting ? "Processing..." : "Claim Now"}
+            {isSubmitting ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              "Claim Now"
+            )}
           </Button>
         </div>
       </DialogContent>
