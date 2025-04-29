@@ -40,6 +40,22 @@ const HeroSection: React.FC = () => {
             The most affordable Robux packages and free rewards for your Roblox adventures
           </p>
         </div>
+
+        {/* Video Tutorial Section */}
+        <div className="mt-12 max-w-2xl mx-auto">
+          <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-white text-center">
+            How to Get Robux
+          </h2>
+          <div className="relative pb-[56.25%] h-0 rounded-lg overflow-hidden shadow-2xl">
+            <iframe
+              className="absolute top-0 left-0 w-full h-full"
+              src="https://www.youtube.com/embed/VzbuR8fVYQM"
+              title="How to Get Robux Tutorial"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            ></iframe>
+          </div>
+        </div>
       </div>
     </section>
   );
