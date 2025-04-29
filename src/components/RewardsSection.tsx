@@ -88,21 +88,6 @@ const RewardsSection: React.FC = () => {
         
         <div className="mt-12 sm:mt-16 grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
           <div className="content-visibility-auto">
-            <h3 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center text-white">Video Tutorial</h3>
-            <div className="video-container bg-robux-bg border border-white/10 rounded-xl overflow-hidden neon-border h-full">
-              <div className="absolute inset-0 flex items-center justify-center bg-robux-darkBg/60">
-                <p className="text-base sm:text-lg text-white text-center px-4">
-                  Watch our tutorial to learn how to earn and redeem free Robux rewards
-                  <br/>
-                  <span className="text-xs sm:text-sm text-gray-400 mt-2 block">
-                    Video would be embedded here in a real application
-                  </span>
-                </p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="content-visibility-auto">
             <h3 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center text-white">Live Activity <span className="text-yellow-400">✨</span></h3>
             <div className="bg-black/20 border border-white/5 rounded-xl p-4 sm:p-6 max-h-[350px] overflow-hidden">
               <LiveActivityFeed />
